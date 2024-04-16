@@ -1,6 +1,6 @@
 import pygwidgets
 
-#This class is meant to create the right side buttones of the game not the 9*9 board buttons
+#This class is meant to create the right side buttons of the game not the 9*9 board buttons
 class button:
   def __init__(self, window, topLeft, upImg, downImg, overImg, disImg):
     self.window = window
@@ -260,6 +260,8 @@ answersC = board([
 ])
 
 ########ACTUAL GAME #######
+
+#the current codes aren't actually able to properly perform the game; although the values are detected to be changing, the board doesnt change...
 
 import pygame
 from pygame.locals import *
