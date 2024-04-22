@@ -1,8 +1,7 @@
-#not playable, but all the cells are functioning
-
 import pygwidgets
+import time
 
-#This class is meant to create the right side buttons of the game not the 9*9 board buttons
+#This class is meant to create the right side buttones of the game not the 9*9 board buttons
 class button:
   def __init__(self, window, topLeft, upImg, downImg, overImg, disImg):
     self.window = window
@@ -169,9 +168,10 @@ class cell:
     return cell_button
   
 class cellBoard(cell):
-    def __init__(self, window, value, topLeft):
+    def __init__(self, window, value, topLeft, possi):
       super().__init__(window, value, topLeft)
       self.num = int_num[value]
+      self.possi = possi # pass on possi Button list (lost of possi check boxes from 1 to 9)
     
     def create_cell(self):
       cell_button = pygwidgets.CustomRadioButton(self.window, self.topLeft, "Board",
@@ -181,6 +181,50 @@ class cellBoard(cell):
                                                  onDown = self.num.downImg,
                                                  offDown = self.num.upImg)
       return cell_button
+
+class cellPossi(cell):
+    def __init__(self, window, value, topLeft):
+      super().__init__(window, value, topLeft)
+      self.num = int_num[value]
+    
+    def create_cell(self):
+      cell_button = pygwidgets.CustomCheckBox(self.window, self.topLeft,
+                                             on=self.num.downImg, 
+                                             off=self.num.upImg)
+      return cell_button
+      
+class Timer:
+    def __init__(self):
+        self.start_time = None
+        self.elapsed_time = 0
+        self.running = False
+
+    def start(self):
+        self.start_time = time.time()
+        self.running = True
+
+    def stop(self):
+        if self.running:
+            self.elapsed_time += time.time() - self.start_time
+            self.running = False
+
+    def reset(self):
+        self.elapsed_time = 0
+        self.running = False
+
+    def get_elapsed_time(self):
+        if self.running:
+            return self.elapsed_time + time.time() - self.start_time
+        else:
+            return self.elapsed_time
+
+    def get_elapsed_minutes_seconds(self):
+        total_seconds = int(self.get_elapsed_time())
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        return minutes, seconds
+
+
 
 loc_BoardCell = [
     [(125,41), (200,41), (275,41), (350,41), (425,41), (500,41), (575,41), (650,41), (725,41)],
@@ -194,7 +238,7 @@ loc_BoardCell = [
     [(125,641), (200,641), (275,641), (350,641), (425,641), (500,641), (575,641), (650,641), (725,641)],
 ]
 
-loc_Possi = [(303,735),(378, 735),(453,735),(528,746),(603,735),(678,735),(753,735),(828,735),(903, 735)]
+loc_Possi = [(303,735),(378, 735),(453,735),(528,735),(603,735),(678,735),(753,735),(828,735),(903, 735)]
 loc_Input = [(30,41),(30,116),(30,191),(30,266),(30,341),(30,416),(30,491),(30,566),(30,641)]
 
 loc_Pixels = {
@@ -245,6 +289,8 @@ answersA = board([
  [2, 4, 6, 1, 5, 3, 8, 7, 9]
 ])
 
+ansA_dict = {(1, 1): 4, (1, 5): 9, (1, 6): 1, (2, 3): 9, (2, 6): 7, (2, 7): 4, (2, 8): 2, (2, 9): 5, (3, 2): 5, (3, 3): 8, (3, 4): 3, (3, 5): 4, (3, 7): 1, (3, 8): 9, (4, 1): 6, (4, 2): 9, (4, 3): 1, (5, 3): 3, (5, 4): 9, (5, 5): 6, (5, 6): 4, (5, 7): 7, (6, 7): 9, (6, 8): 6, (6, 9): 3, (7, 2): 8, (7, 3): 7, (7, 5): 2, (7, 6): 6, (7, 7): 5, (7, 8): 3, (8, 1): 3, (8, 2): 1, (8, 3): 5, (8, 4): 8, (8, 7): 6, (9, 4): 1, (9, 5): 5, (9, 9): 9}
+
 boardB = board([
  [8, 3, 5, 0, 2, 1, 4, 0, 0],
  [1, 0, 7, 4, 6, 5, 0, 3, 0],
@@ -268,6 +314,8 @@ answersB = board([
  [5, 8, 1, 2, 3, 6, 7, 9, 4],
  [6, 7, 3, 1, 4, 9, 8, 2, 5]
 ])
+
+ansB_dict = {(1, 4): 9, (1, 8): 6, (1, 9): 7, (2, 2): 9, (2, 7): 2, (2, 9): 8, (3, 1): 4, (3, 2): 6, (3, 5): 7, (3, 6): 8, (4, 1): 3, (4, 2): 2, (4, 5): 9, (4, 6): 4, (4, 8): 7, (5, 1): 7, (5, 4): 6, (5, 6): 3, (5, 9): 2, (6, 2): 1, (6, 4): 7, (6, 5): 8, (6, 8): 4, (6, 9): 3, (7, 4): 8, (7, 5): 5, (7, 8): 1, (7, 9): 6, (8, 1): 5, (8, 3): 1, (8, 8): 9, (9, 1): 6, (9, 2): 7, (9, 6): 9}
 
 boardC = board([
  [0, 7, 0, 5, 0, 0, 2, 4, 0],
@@ -293,6 +341,8 @@ answersC = board([
  [4, 8, 2, 9, 6, 7, 3, 5, 1]
 ])
 
+ansC_dict = {(1, 1): 9, (1, 3): 6, (1, 5): 1, (1, 6): 3, (1, 9): 8, (2, 2): 5, (2, 3): 8, (2, 8): 9, (3, 2): 3, (3, 8): 1, (4, 2): 6, (4, 4): 8, (4, 7): 9, (4, 8): 2, (5, 3): 3, (5, 4): 4, (5, 6): 9, (5, 7): 1, (6, 2): 4, (6, 3): 9, (6, 6): 6, (6, 8): 3, (7, 2): 9, (7, 8): 8, (8, 2): 1, (8, 7): 6, (8, 8): 7, (9, 1): 4, (9, 4): 9, (9, 5): 6, (9, 7): 3, (9, 9): 1}
+
 ########ACTUAL GAME #######
 
 import pygame
@@ -303,6 +353,10 @@ WD_WIDTH = 1280 # change later
 WD_HEIGHT = 840 # change later
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+PINK = (207,107,169)
+INDEX = 0  
+HAVE_BOARD = False
+
 
 # set up background and layouts
 pygame.init()
@@ -315,6 +369,9 @@ text_surface = font_title.render("Sudoku", True, WHITE)
 font_sub = pygame.font.Font(None, 32)
 input_text = font_sub.render("Inputs:", True, WHITE)
 pos_text = font_sub.render("Possibilities:", True, WHITE)
+
+font = pygame.font.SysFont(None, 80) #for timer
+timer = Timer()
 ##########
 int_num = {
     0:number(0), #obj from Number class
@@ -391,6 +448,10 @@ def background():
     pygame.draw.line(window, BLACK, (828, 735), (828, 810), 3)
     pygame.draw.line(window, BLACK, (903, 735), (903, 810), 3)
 
+    minutes, seconds = timer.get_elapsed_minutes_seconds()
+    timer_text = font.render("Time: {:02d}:{:02d}".format(minutes, seconds), True, PINK)
+    window.blit(timer_text, (865, 255))
+
 currentBoard = board(emptyboard.values)
 
 ##########
@@ -404,33 +465,56 @@ for i in range(1,10):
 
 board_button_list = []
 board_button_dict = {}
+each_cell_possi_list = []
 
-def create_board(new_board): #create cells and numbers according to the new_board
+
+def create_board(new_board):
   global board_button_list
   global board_button_dict
+  global each_cell_possi_list #list of list [[1-9possi of cell the 1st empty cell], [1-9possi of cell the 2st empty cell], ...]
   global currentBoard
+  
   for row in range(9):
       for col in range(9):
         if new_board.values[row][col] == 0:
-          c = cellBoard(window, 0, loc_BoardCell[row][col])
+          #possi creation
+          possi_button_list = []
+          for i in range(1,10):
+            c = cellPossi(window, i, loc_Possi[i-1])
+            b = c.create_cell()
+            possi_button_list.append((b,c)) #list of touples
+          c = cellBoard(window, 0, loc_BoardCell[row][col], possi_button_list)
+          each_cell_possi_list.append(c.possi)
           b = c.create_cell()
           board_button_list.append((b,c))
           board_button_dict[loc_Pixels[c.topLeft]] = c.value
+          
   currentBoard = board(new_board.values)
 
-def reset_board(old_board): #reset the board back to its empty state
+def reset_board(old_board):
   global board_button_list
   global board_button_dict
+  global each_cell_possi_list
   global currentBoard
+  #possi reset
+  for b,c in board_button_list:
+    possi_button_list = []
+    for i in range(1,10):
+      c = cellPossi(window, i, loc_Possi[i-1])
+      b = c.create_cell()
+      possi_button_list.append((b,c))
+    c.possi = possi_button_list
+
+  each_cell_possi_list = []
   board_button_list = []
   board_button_dict = {}
   create_board(old_board)
 
 ##########
 
-stareButton = stare.create_button() #start/reset
-newButton = new.create_button() #new
-endButton = end.create_button() #end
+stareButton = stare.create_button()
+newButton = new.create_button()
+endButton = end.create_button()
 
 while True:
     for event in pygame.event.get():
@@ -442,16 +526,32 @@ while True:
         if bb.handleEvent(event):
           print("selected " + str(loc_Pixels[cb.topLeft]))
           index = board_button_list.index((bb,cb)) #save index on list
+          print("index",index)
+          INDEX = index
           locate = cb.topLeft #save location
+      
+      if HAVE_BOARD:
+        for possi_button, possi_cell in  each_cell_possi_list[INDEX]:
+          if possi_button.handleEvent(event):
+            print("INDEX",INDEX)
+            print("possi handle")
+            pass
 
       for bi,ci in input_button_list:
         if bi.handleEvent(event):
-            cb = cellBoard(window, ci.value, locate)
+            #possi creation
+            possi_button_list = []
+            for i in range(1,10):
+              c = cellPossi(window, i, loc_Possi[i-1])
+              b = c.create_cell()
+              possi_button_list.append((b,c))
+
+            cb = cellBoard(window, ci.value, locate,possi_button_list)
             bb = cb.create_cell()
             board_button_list[index] = (bb,cb) #replace the cell in the list
             board_button_dict[loc_Pixels[cb.topLeft]] = cb.value #for troubleshooting
         
-      if stareButton.handleEvent(event): #start/reset board
+      if stareButton.handleEvent(event):
         if currentBoard.values == emptyboard.values:
            create_board(boardA)
         if currentBoard.values == boardA.values:
@@ -460,6 +560,9 @@ while True:
           reset_board(boardB)
         elif currentBoard.values == boardC.values:
           reset_board(boardC)
+        HAVE_BOARD = True
+        timer.reset()
+        timer.start()
       
       if newButton.handleEvent(event): #change boards
         if currentBoard.values == boardA.values:
@@ -471,10 +574,29 @@ while True:
         elif currentBoard.values == boardC.values:
           currentBoard.values = boardA.values
           reset_board(boardA)
+        HAVE_BOARD = True
 
       if endButton.handleEvent(event):
-         print(board_button_dict)
+         if currentBoard.values == boardA.values:
+          if board_button_dict == ansA_dict:
+             print("correct")
+          else:
+             print("incorrect")
+         elif currentBoard.values == boardB.values:
+          if board_button_dict == ansB_dict:
+             print("correct")
+          else:
+             print("incorrect")
+         elif currentBoard.values == boardC.values:
+          if board_button_dict == ansC_dict:
+             print("correct")
+          else:
+             print("incorrect")
+         timer.stop()
+         HAVE_BOARD = True
 
+    
+  
     window.blit(text_surface, (850, 70))
     window.blit(input_text, (30, 12))
     window.blit(pos_text, (135, 760))
@@ -482,10 +604,20 @@ while True:
     background()
     for b,c in input_button_list:
       b.draw()
+
     for b,c in board_button_list:
       b.draw()
+    
+    if HAVE_BOARD:
+      for b, c in each_cell_possi_list[INDEX]:
+        b.draw()
+    
+
     stareButton.draw()
     newButton.draw()
     endButton.draw()
     currentBoard.draw()
     pygame.display.update()
+    #pygame.display.flip()
+
+pygame.quit()
